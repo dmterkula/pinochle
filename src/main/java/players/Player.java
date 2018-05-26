@@ -260,13 +260,13 @@ public class Player {
         return meldCounter;
     }
 
-    public boolean bidOrNot(int lastBid, int partnerBidCount, boolean partnerHasPassed, boolean givenMeldBid){
+    public int bidOrNot(int lastBid, int partnerBidCount, boolean partnerHasPassed, boolean givenMeldBid){
 
-        boolean toBid = false;
+        int bidChoice = 0;
         int nextBid = lastBid ++;
         double currentHandValue = getHandStrength() + getMeldCounter().countMeldFromTrump(getTrump() + pointsGainedByBurying());
         double pointEstimateIncludingPartner = currentHandValue;
-
+        double oddsOfGettingNecessaryMeld;
 
         // factor in partner behavior
 
@@ -283,16 +283,26 @@ public class Player {
         //System.out.println("estimated points after trump, hand strength, partner points, and burying potential: " + pointEstimateIncludingPartner);
 
         if(pointEstimateIncludingPartner >= nextBid){
-            toBid = true;
+             bidChoice = 1;
+             oddsOfGettingNecessaryMeld = 1.0;
         }
         else {// need help from cat, evaluate odds
-            double oddsOfGettingNecessaryMeld = calculateOddsOfGettingXMeld(nextBid-pointEstimateIncludingPartner);
+             oddsOfGettingNecessaryMeld = calculateOddsOfGettingXMeld(nextBid-pointEstimateIncludingPartner);
             if(oddsOfGettingNecessaryMeld >=.5){
-                toBid = true;
+                bidChoice = 1;
             }
         }
 
-        return toBid;
+        // check for meld bid scenario
+        // cant check score or hand count here to influence meld bid decision
+        if(getMeldCounter().getMeld() >= 10 && oddsOfGettingNecessaryMeld < .5 &&  !partnerHasPassed && !givenMeldBid ){ // could be edited to allow a meld bid to be
+                                                                                    // to be given back
+            bidChoice = 2;
+        }
+
+
+
+        return bidChoice;
     }
 
     public double pointsGainedByBurying() {

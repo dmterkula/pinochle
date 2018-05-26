@@ -18,7 +18,8 @@ public class Hand {
     private Deck deck;
     private List<Card> cat;
     private static final int NUM_PLAYERS = 4;
-    private boolean[] didPass = new boolean [NUM_PLAYERS];
+    private int[] playerBidStates = new int[NUM_PLAYERS];
+    private int[] bidCount = new int[NUM_PLAYERS];
 
     private int scoreDiff;
 
@@ -28,7 +29,14 @@ public class Hand {
         this.handCounter = handCounter;
         this.deck = deck;
         cat = new ArrayList<>();
-        didPass[0] = false; didPass[1] = false; didPass[2] = false; didPass[3] = false;
+        playerBidStates[0] = 0;
+        playerBidStates[1] = 0;
+        playerBidStates[2] = 0;
+        playerBidStates[3] = 0;
+        bidCount[0] = 0;
+        bidCount[1] = 0;
+        bidCount[2] = 0;
+        bidCount[3] = 0;
     }
 
     public Hand(ArrayList<Player> players, int scoreDiff, int handCounter, Deck deck) {
@@ -116,18 +124,36 @@ public class Hand {
         Player bidder = players.get(bidderIndex);
         int currentBid = 20;
 
-        while(getNumPassed() > 1){
-            if(didPass[bidderIndex] == true){ // if they passed, then skip
+        while (getNumPassed() > 1) {
+            if (playerBidStates[bidderIndex] == 0) { // if they passed, then skip
+
+            } else { // decide if they bid or not
+                int partner = getPartnerIndex(bidderIndex);
+                int partnerBidCount =  bidCount[partner];
+                boolean partnerHasPassed;
+                boolean givenMeldBid = false;
+                 if(playerBidStates[partner] == 0){
+                     partnerHasPassed = true;
+                 }
+                 else{
+                     partnerHasPassed = false;
+                     if(playerBidStates[partner] == 2){
+                         givenMeldBid = true;
+                     }
+                 }
+                int bidChoice = bidder.bidOrNot(currentBid, partnerBidCount, partnerHasPassed, givenMeldBid);
+                playerBidStates[bidderIndex] = bidChoice;
+                if (bidChoice == 0) {
+                    // pass, nothing to update
+                } else if (bidChoice == 1) {
+                    // bid
+                    bidCount[bidderIndex] = bidCount[bidderIndex] + 1; // updateBidCount
+                } else { // meldBid
+                    bidCount[bidderIndex] = bidCount[bidderIndex] + 1; // updateBidCount
+                }
 
             }
-            else{ // decide if they bid or not
-
-            }
-            boolean didBid = bidder.bidOrNot();
-            if(didBid == false){ // then passed, update bids
-                didPass[bidderIndex] = true; // if they didn't bid, they passed
-            }
-
+            currentBid += playerBidStates[bidderIndex]; // adds one if they bid, adds two for meld bid.
             bidderIndex = updateBidderIndex(bidderIndex);
 
         }
@@ -137,34 +163,44 @@ public class Hand {
         int firstBidderIndex = 0;
         for (int i = 0; i < players.size(); i++) {
             if (players.get(i).isDealer()) {
-                if (i == NUM_PLAYERS-1) {
+                if (i == NUM_PLAYERS - 1) {
                     firstBidderIndex = 0;
                 } else {
-                    firstBidderIndex = i+1;
+                    firstBidderIndex = i + 1;
                 }
             }
         }
         return firstBidderIndex;
     }
 
-    private int getNumPassed(){
+    private int getNumPassed() {
         int numPassed = 0;
-        for(int i =0; i < didPass.length; i++){
-            if(didPass[i] == true){
+        for (int i = 0; i < playerBidStates.length; i++) {
+            if (playerBidStates[i] == 0) {
                 numPassed++;
             }
         }
         return numPassed;
     }
 
-    private int updateBidderIndex(int bidderIndex){
-        if(bidderIndex == NUM_PLAYERS-1){
+    private int updateBidderIndex(int bidderIndex) {
+        if (bidderIndex == NUM_PLAYERS - 1) {
             bidderIndex = 0;
-        }
-        else{
-            bidderIndex ++;
+        } else {
+            bidderIndex++;
         }
         return bidderIndex;
+    }
+
+    private int getPartnerIndex(int i) {
+        int partnerIndex;
+        if (i == 0 || i == 1) {
+            partnerIndex = i + 2;
+        } else { // i = 2 or 3;
+            partnerIndex = i - 2;
+        }
+
+        return partnerIndex;
     }
 
 }
