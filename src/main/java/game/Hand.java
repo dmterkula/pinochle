@@ -1,5 +1,6 @@
 package game;
 
+import auxilary.MeldCounter;
 import cards.Card;
 import cards.Deck;
 import players.Player;
@@ -21,6 +22,7 @@ public class Hand {
     private static final int NUM_PLAYERS = 4;
     private int[] playerBidStates = new int[NUM_PLAYERS];
     private int[] bidCount = new int[NUM_PLAYERS];
+    private String trump;
 
     private int scoreDiff;
 
@@ -138,18 +140,18 @@ public class Hand {
                 int partnerBidCount =  bidCount[partner];
                 boolean partnerHasPassed;
                 boolean givenMeldBid = false;
-                 if(playerBidStates[partner] == 0){
-                     partnerHasPassed = true;
-                 }
-                 else{
-                     partnerHasPassed = false;
-                     if(playerBidStates[partner] == 2){
-                         givenMeldBid = true;
-                     }
-                 }
+                if(playerBidStates[partner] == 0){
+                    partnerHasPassed = true;
+                }
+                else{
+                    partnerHasPassed = false;
+                    if(playerBidStates[partner] == 2){
+                        givenMeldBid = true;
+                    }
+                }
                 int bidChoice;
                 if(bidder.isHuman()){
-                     bidChoice = getHumanBid();
+                    bidChoice = getHumanBid();
                 }
                 else {
                     bidder.pickTrump();
@@ -239,10 +241,10 @@ public class Hand {
         boolean isValid = false;
         int choice = 0;
         while (!isValid) {
-             choice = in.nextInt();
-             if(choice == 0 || choice == 1 || choice ==2){
-                 isValid = true;
-             }
+            choice = in.nextInt();
+            if(choice == 0 || choice == 1 || choice ==2){
+                isValid = true;
+            }
         }
         return choice;
     }
@@ -257,10 +259,51 @@ public class Hand {
         return winnerIndex;
     }
 
-    private void printPlayerBidStates(){
-        System.out.println("bidStates: { " + playerBidStates[0] + ", " + playerBidStates[1] + ", " + playerBidStates[2] + ", " + playerBidStates[3] + "}");
+    public void postBidPlay(){
+        int bidWinnerIndex = findBidWinner();
+        Player bidWinner = players.get(bidWinnerIndex);
+        displayCat();
+        bidWinner.getHand().addAll(cat);
+        if(bidWinner.isHuman()){
+            trump = getHumanTrump();
+        }
+        else {
+            trump = bidWinner.pickTrump();
+        }
+
+        System.out.println(bidWinner.getName() + " picked " + trump + " as trump");
+        System.out.print(bidWinner.getName() + "'s meld combinations: ");
+        MeldCounter mc = new MeldCounter(bidWinner.getHand());
+        int meld = mc.countMeldFromTrump(trump);
+        if(mc.getNineCounter() > 0) {
+            System.out.println(bidWinner.getName() + " also has " + mc.getNineCounter() + " nines");
+        }
+        System.out.println(bidWinner.getName() + " has " + meld);
+
     }
 
+    public void displayCat(){
+        System.out.println("In the cat there is: ");
+        for(Card c: cat){
+            System.out.print(c + ", ");
+        }
+        System.out.println();
+    }
+
+    private String getHumanTrump(){
+        Scanner in = new Scanner(System.in);
+        boolean validTrump = false;
+        while (!validTrump) {
+            System.out.println("Name trump: (HEARTS, DIAMONDS, CLUBS, SPADES)");
+            trump = in.next();
+            if(trump.equalsIgnoreCase("HEARTS") || trump.equalsIgnoreCase("DIAMONDS") || trump.equalsIgnoreCase("CLUBS")
+                    || trump.equalsIgnoreCase("SPADES")){
+                validTrump = true;
+            }
+        }
+
+        return trump;
+    }
 
 
 }

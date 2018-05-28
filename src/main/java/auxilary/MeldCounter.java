@@ -15,7 +15,7 @@ public class MeldCounter {
     private List<Card> spades;
     private int meld;
     private int meldFromTrump;
-
+    private int trumpNineCounter;
 
     // build sets of combinations.
 
@@ -34,10 +34,12 @@ public class MeldCounter {
         diamonds = getDiamonds();
         meld = 0;
         meldFromTrump = 0;
+        trumpNineCounter = 0;
         meldCombinations = new ArrayList<>();
         stateOfCombinations = new HashMap<>();
         countMeld();
     }
+
 
     public void countMeld(){
         meld = 0;
@@ -488,7 +490,6 @@ public class MeldCounter {
 
     setMeld(meld);
 
-
 }
 
 
@@ -638,6 +639,7 @@ public class MeldCounter {
         for(Card c: hand){
             if(c.getSuit().equalsIgnoreCase(trump) && c.getRank().equalsIgnoreCase("NINE")){
                 moreMeld += 1;
+                trumpNineCounter ++;
             }
         }
 
@@ -685,6 +687,9 @@ public class MeldCounter {
         return moreMeld + getMeld();
     }
 
+    public int getNineCounter(){
+        return trumpNineCounter;
+    }
 
 
 }

@@ -45,6 +45,7 @@ public class Tester {
         System.out.println("Bid? = " + player1.bidOrNot(21, 0, true, false));
         System.out.println();
         hand.commenceBidding();
+        hand.postBidPlay();
 
     }
 
