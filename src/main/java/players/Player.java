@@ -19,8 +19,9 @@ public class Player {
     private MeldCounter meldCounter;
     private double handStrength = 0.0;
     private String trump;
+    private boolean isHuman;
 
-    public Player(String name) {
+    public Player(String name, boolean isHuman) {
         id = idCounter;
         this.name = name;
         hand = new ArrayList<Card>();
@@ -28,6 +29,7 @@ public class Player {
         idCounter ++;
         teammateId = determineTeammate(id);
         meldCounter = new MeldCounter(hand);
+        this.isHuman = isHuman;
     }
 
     public String getName() {
@@ -68,6 +70,10 @@ public class Player {
 
     public void setDealer(boolean dealer) {
         isDealer = dealer;
+    }
+
+    public boolean isHuman(){
+        return isHuman;
     }
 
     public int determineTeammate(int id){
@@ -273,10 +279,10 @@ public class Player {
         if (partnerBidCount > 0 && givenMeldBid) { // meld bid given
             pointEstimateIncludingPartner += 10; // expect partner to have 10 meld;
         } else if (partnerBidCount > 0 && !givenMeldBid) { // bid but, no meld bid
-            pointEstimateIncludingPartner += 4; // assume they will contribute 4 points b/c they bid on something for a reason.
+            pointEstimateIncludingPartner += 2.5; // assume they will contribute 4 points b/c they bid on something for a reason.
         }
         else { // have not bid
-            pointEstimateIncludingPartner += 2;// assume they have two meld
+            pointEstimateIncludingPartner += 1.5;// assume they have two meld
         }
 
         //System.out.println("handStrength: " + getHandStrength() + "  meldCountAfterTrump: " + getMeldCounter().countMeldFromTrump(trump) + "  points gained by burying: " + pointsGainedByBurying());
@@ -386,7 +392,7 @@ public class Player {
         //account for marriage in trump change in value
 
         for(CardCombo cardCombo: possibleCombinations){
-            if(trump .equalsIgnoreCase("HEARTS")){
+            if(trump.equalsIgnoreCase("HEARTS")){
                 if(cardCombo.getName().equalsIgnoreCase("marriage hearts")){
                     cardCombo.setValue(4);
                 }

@@ -52,10 +52,10 @@ public class HandSimulation {
     }
 
     public static void createPlayers(){
-        player1 = new Player("You");
-        player2 = new Player("AI1");
-        player3 = new Player("AI2");
-        player4 = new Player("AI3");
+        player1 = new Player("You", true);
+        player2 = new Player("AI1", false);
+        player3 = new Player("AI2", false);
+        player4 = new Player("AI3", false);
     }
 
     public static void createHand(){
@@ -140,10 +140,10 @@ public class HandSimulation {
         int meldAfterTrump = hand.getPlayers().get(0).getMeldCounter().countMeldFromTrump(trump);
         System.out.println("meld after trump: " + meldAfterTrump);
         double handStrength = player1.estimatePointsTaken(hand.getPlayers().get(0).getHand(), trump);
-        boolean aiBidOrNot = player1.bidOrNot(lastBid, partnerBidCount, partnerHasPassed, partnerMeldBid);
+        int aiBidChoice = player1.bidOrNot(lastBid, partnerBidCount, partnerHasPassed, partnerMeldBid);
 
         Object[] inputs = new Object[10];
-        inputs[0] = meldAfterTrump; inputs[1] = handStrength; inputs [2] = aiBidOrNot; inputs[3] = partnerBid; inputs[4] = partnerMeldBid;
+        inputs[0] = meldAfterTrump; inputs[1] = handStrength; inputs [2] = aiBidChoice; inputs[3] = partnerBid; inputs[4] = partnerMeldBid;
         inputs[5] = partnerHasPassed; inputs[6] = hand.getHandCounter(); inputs [7] = hand.getScoreDiff(); inputs[8] = lastBid; inputs[9] = null;
 
         return inputs;

@@ -43,7 +43,8 @@ public class Tester {
         System.out.println("meld after trump = " + player1.getMeldCounter().countMeldFromTrump(trump));
 
         System.out.println("Bid? = " + player1.bidOrNot(21, 0, true, false));
-
+        System.out.println();
+        hand.commenceBidding();
 
     }
 
@@ -51,7 +52,7 @@ public class Tester {
         System.out.println("Please enter your name");
         Scanner in = new Scanner(System.in);
         String name = in.next();
-        player1 = new Player(name);
+        player1 = new Player(name, true);
         for(int i = 0; i < 3; i++){
             if(i%2 == 0){
                 System.out.println("What should opposing player be called?");
@@ -61,13 +62,13 @@ public class Tester {
             }
             String newName = in.next();
             if(i == 0){
-                player2 = new Player(newName);
+                player2 = new Player(newName, false);
             }
             else if(i == 1){
-                player3 = new Player(newName);
+                player3 = new Player(newName, false);
             }
             else{
-                player4 = new Player(newName);
+                player4 = new Player(newName, false);
             }
 
         }
@@ -90,7 +91,6 @@ public class Tester {
 
         return trump;
     }
-
 
 
 }

@@ -6,6 +6,7 @@ import players.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by dmter on 11/24/2017.
@@ -29,10 +30,10 @@ public class Hand {
         this.handCounter = handCounter;
         this.deck = deck;
         cat = new ArrayList<>();
-        playerBidStates[0] = 0;
-        playerBidStates[1] = 0;
-        playerBidStates[2] = 0;
-        playerBidStates[3] = 0;
+        playerBidStates[0] = -1;
+        playerBidStates[1] = -1;
+        playerBidStates[2] = -1;
+        playerBidStates[3] = -1;
         bidCount[0] = 0;
         bidCount[1] = 0;
         bidCount[2] = 0;
@@ -123,11 +124,16 @@ public class Hand {
         int bidderIndex = findFirstBidder();
         Player bidder = players.get(bidderIndex);
         int currentBid = 20;
-
-        while (getNumPassed() > 1) {
+        System.out.println("The 1st bidder is " + bidder.getName());
+        int counter = 0;
+        while (getNumPassed() < NUM_PLAYERS-1) {
+            counter ++;
+            bidder = players.get(bidderIndex);
             if (playerBidStates[bidderIndex] == 0) { // if they passed, then skip
-
+                bidderIndex = updateBidderIndex(bidderIndex);
+                continue;
             } else { // decide if they bid or not
+                System.out.println(bidder.getName() + " is the bidder. " + " To bid, must wager atleast " + (currentBid+1));
                 int partner = getPartnerIndex(bidderIndex);
                 int partnerBidCount =  bidCount[partner];
                 boolean partnerHasPassed;
@@ -141,7 +147,15 @@ public class Hand {
                          givenMeldBid = true;
                      }
                  }
-                int bidChoice = bidder.bidOrNot(currentBid, partnerBidCount, partnerHasPassed, givenMeldBid);
+                int bidChoice;
+                if(bidder.isHuman()){
+                     bidChoice = getHumanBid();
+                }
+                else {
+                    bidder.pickTrump();
+                    bidChoice = bidder.bidOrNot(currentBid, partnerBidCount, partnerHasPassed, givenMeldBid);
+                }
+
                 playerBidStates[bidderIndex] = bidChoice;
                 if (bidChoice == 0) {
                     // pass, nothing to update
@@ -154,9 +168,26 @@ public class Hand {
 
             }
             currentBid += playerBidStates[bidderIndex]; // adds one if they bid, adds two for meld bid.
+            if(playerBidStates[bidderIndex] == 0){
+                System.out.println(bidder.getName() + " passed ");
+            }
+            else{
+                System.out.println(bidder.getName() + " bid " + currentBid);
+            }
+
             bidderIndex = updateBidderIndex(bidderIndex);
 
         }
+
+        if(counter <= 3){
+            System.out.println(players.get(findBidWinner()).getName() + " was dropped, only have to make 20!");
+        }
+        else {
+            System.out.println(players.get(findBidWinner()).getName() + " won the bid at " + currentBid);
+        }
+
+
+
     }
 
     public int findFirstBidder() {
@@ -202,5 +233,34 @@ public class Hand {
 
         return partnerIndex;
     }
+
+    private int getHumanBid(){
+        Scanner in = new Scanner(System.in);
+        boolean isValid = false;
+        int choice = 0;
+        while (!isValid) {
+             choice = in.nextInt();
+             if(choice == 0 || choice == 1 || choice ==2){
+                 isValid = true;
+             }
+        }
+        return choice;
+    }
+
+    private int findBidWinner(){
+        int winnerIndex = 0;
+        for(int i = 0; i < NUM_PLAYERS; i++){
+            if(playerBidStates[i] != 0){
+                winnerIndex = i;
+            }
+        }
+        return winnerIndex;
+    }
+
+    private void printPlayerBidStates(){
+        System.out.println("bidStates: { " + playerBidStates[0] + ", " + playerBidStates[1] + ", " + playerBidStates[2] + ", " + playerBidStates[3] + "}");
+    }
+
+
 
 }
